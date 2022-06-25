@@ -29,7 +29,8 @@ server.post('/login', function(req,res){
                     const JSON_response = {
                         message:"Login Successful",
                         data:response,
-                        state:"Success"
+                        state:"Success",
+                        status:true
                     };
                     const stringify_response = JSON.stringify(JSON_response);
                     res.status(200);
@@ -41,7 +42,8 @@ server.post('/login', function(req,res){
                     const JSON_response = {
                         message:"Invalid login details",
                         data:"Password not correct",
-                        state:"Error"
+                        state:"Error",
+                        status:false
                         
                     };
                     const stringify_response = JSON.stringify(JSON_response);
@@ -51,7 +53,8 @@ server.post('/login', function(req,res){
                 const JSON_response = {
                     message:"User not found",
                     data:"User has no account with leadswire",
-                    state:"Error"
+                    state:"Error",
+                    status:false
                 };
                 const stringify_response = JSON.stringify(JSON_response);
                 res.status(404);
@@ -63,7 +66,8 @@ server.post('/login', function(req,res){
             const JSON_response = {
                 message:"User not found",
                 data:catcher, 
-                state:"Error"
+                state:"Error",
+                status:false
             };
             const stringify_response = JSON.stringify(JSON_response);
             res.status(404);
@@ -101,7 +105,8 @@ server.post("/mail_service",function(req,res){
                 const JSON_response = {
                     message:"Mail was not sent",
                     data:err,
-                    state:"Error"
+                    state:"Error",
+                    status:false
                 };
                 const stringify_response = JSON.stringify(JSON_response);
                 res.status(403);
@@ -110,7 +115,8 @@ server.post("/mail_service",function(req,res){
                 const JSON_response = {
                     message:"Mail sent",
                     data:info.response,
-                    state:"Success"
+                    state:"Success",
+                    status:true
                 };
                 const stringify_response = JSON.stringify(JSON_response);
                 res.status(200);
@@ -142,6 +148,8 @@ server.post("/mail_service",function(req,res){
             const stringify_response = JSON.stringify({
                 message:"Schedule added Successfully",
                 data:data,
+                status:true,
+                state:"Success"
             });
             res.status(201);
             res.send(stringify_response);
@@ -176,6 +184,8 @@ server.post('/register', function(req,res){
             const stringify_response = JSON.stringify({
                 message:"Registered Successfully",
                 data:user_details,
+                status:true,
+                state:"Success"
             });
             res.status(201);
             res.send(stringify_response);
@@ -184,8 +194,9 @@ server.post('/register', function(req,res){
         }else{
             const stringify_response = JSON.stringify({
                 message:"Account already exist",
-                error:"Duplicate entry",
-                state:"error"
+                data:"Duplicate entry",
+                state:"error",
+                status:false
             });
             res.status(409);
             res.send(stringify_response);
