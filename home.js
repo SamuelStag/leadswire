@@ -1,9 +1,10 @@
 const { text } = require('express');
 const  express =require('express');
 const server =  express();
-const nodemailer = require("nodemailer");
 const FirestoreClient = require('./firebase_config');
 const DataManipulator = require("./data_manipulator");
+const MailSender = require("./mailSender");
+const mailSender = require('./mailSender');
 
 server.get('/',function(req,res){
     res.send("WELCOME");
@@ -81,61 +82,59 @@ server.post('/login', function(req,res){
 
 
 
-server.post("/mail_service",function(req,res){
-    const sender = req.query.sender;
-    const receiver = req.query.receiver;
-    const subject = req.query.subject;
-    const body = req.query.body;
-    if(sender!=undefined && receiver!=undefined && body!=undefined && subject!=undefined){
-        let  transporter = nodemailer.createTransport({
-            service:'gmail',
-            auth:{
-                user:"Obajemusa@gmail.com",
-                pass:"gbenga12"
-            }
-        });
-        let mailOptions ={
-            from:sender,
-            to:receiver,
-            subject: subject,
-            text:body
-        };
-        transporter.sendMail(mailOptions,function(err,info){
-            if(err){
-                const JSON_response = {
-                    message:"Mail was not sent",
-                    data:err,
-                    state:"Error",
-                    status:false
-                };
-                const stringify_response = JSON.stringify(JSON_response);
-                res.status(403);
-                res.send(stringify_response);
-            }else{
-                const JSON_response = {
-                    message:"Mail sent",
-                    data:info.response,
-                    state:"Success",
-                    status:true
-                };
-                const stringify_response = JSON.stringify(JSON_response);
-                res.status(200);
-                res.send(stringify_response);
-            }
-        });
-        
-    }else{
-        const JSON_response = {
-            message:"One or more of the fields required for this request is empty",
-            data:"Invalid input", 
-            state:"Error"
-        };
-        const stringify_response = JSON.stringify(JSON_response);
-        res.status(404);
-        res.send(stringify_response);
-    }
+server.post("/single_mail_service",function(req,res){
+   const response = MailSender.sendMail(req.query.sender,req.query.receiver,req.query.subject,req.query.body);
+   if(response.status==false){
+       res.status(403);
+       res.send(response);
+   }else{
+    res.status(403);
+    res.send(response);
+   }
 
 });
+
+server.post("/profile_settings",function(req,res){
+    const user_email = req.query.user_token;
+    const field_to_update= req.query.data;
+    const value_to_update = req.query.value;
+    let field={field:field_to_update,value:value_to_update};
+    const update = async()=>{
+        try{
+          const response =  await FirestoreClient.updateData("Users",DataManipulator.decryptUserId(user_email),field);
+          const responseU = await FirestoreClient.getData('Users',DataManipulator.decryptUserId(user_email));
+         delete responseU.pass;
+         delete responseU.date;
+            const JSON_response = {
+                message:""+field_to_update+" field updated as "+value_to_update,
+                data:responseU,
+                state:"Successful",
+                status:true
+            };
+            const stringify_response = JSON.stringify(JSON_response);
+            res.status(202);
+            res.send(stringify_response);
+           
+        }catch(catcher){
+            res.status(404);
+            const JSON_responseE = {
+                message:"User to update is not found",
+                error:catcher.message,
+                state:"error",
+                status:false
+            };
+            const stringify_response = JSON.stringify(JSON_responseE);
+            res.send(stringify_response);
+        }
+            
+
+    }
+    update();
+
+});
+
+
+
  server.post("/addschedule",function(req,res){
     const date = req.query.date;
     const time = req.query.time;
