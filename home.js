@@ -82,15 +82,21 @@ server.post('/login', function(req,res){
 
 
 
-server.post("/single_mail_service",function(req,res){
-   const response = MailSender.sendMail(req.query.sender,req.query.receiver,req.query.subject,req.query.body);
-   if(response.status==false){
-       res.status(403);
-       res.send(response);
+server.post("/mail_service",function(req,res){
+   const response = MailSender.sendMail(DataManipulator.decryptUserId(req.query.token),req.query.receiver,req.query.subject,req.query.body);
+   if(response!=undefined){
+    if(response.status==false){
+        res.status(403);
+        res.send(response);
+    }else{
+     res.status(403);
+     res.send(response);
+    }
    }else{
-    res.status(403);
-    res.send(response);
+       res.status(404);
+       res.send("Empty response");
    }
+   
 
 });
 

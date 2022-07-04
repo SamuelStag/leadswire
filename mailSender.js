@@ -3,13 +3,16 @@ class MailSender{
     
     sendMail(sender,receiver,subject,body){
         
+        
         if(sender!=undefined && receiver!=undefined && body!=undefined && subject!=undefined){
+            
             let  transporter = nodemailer.createTransport({
-                service:'gmail',
-                auth:{
-                    user:"Obajemusa@gmail.com",
-                    pass:"gbenga12"
-                }
+                host: 'smtp.ethereal.email',
+                port: 587,
+                 auth: {
+                    user: 'dianna.bartell56@ethereal.email',
+                    pass: 'aSJNPucysP3aJKW9Gc'
+            }
             });
             let mailOptions ={
                 from:sender,
@@ -17,8 +20,11 @@ class MailSender{
                 subject: subject,
                 text:body
             };
+          
             transporter.sendMail(mailOptions,function(err,info){
+                console.log("Happy2");
                 if(err){
+                    console.log(err);
                     const JSON_response = {
                         message:"Mail was not sent",
                         data:err,
@@ -28,6 +34,7 @@ class MailSender{
                     const stringify_response = JSON.stringify(JSON_response);
                     return stringify_response;
                 }else{
+                    console.log("Happy");
                     const JSON_response = {
                         message:"Mail sent",
                         data:info.response,
@@ -40,6 +47,7 @@ class MailSender{
             });
             
         }else{
+            console.log("Happy");
             const JSON_response = {
                 message:"One or more of the fields required for this request is empty",
                 data:"Invalid input", 
