@@ -102,17 +102,22 @@ server.post("/mail_service",function(req,res){
 
 server.post("/profile_settings",function(req,res){
     const user_email = req.query.user_token;
-    const field_to_update= req.query.data;
-    const value_to_update = req.query.value;
-    let field={field:field_to_update,value:value_to_update};
+    const user_name= req.query.name;
+    const user_phone = req.query.phone;
+    const user_pass = req.query.pass;
+    let field={field:'name',value:user_name};
+    let field1={field:'phone',value:user_phone};
+    let field2={field:'pass',value:user_pass};
     const update = async()=>{
         try{
           const response =  await FirestoreClient.updateData("Users",DataManipulator.decryptUserId(user_email),field);
+          const response1 =  await FirestoreClient.updateData("Users",DataManipulator.decryptUserId(user_email),field1);
+          const response2 =  await FirestoreClient.updateData("Users",DataManipulator.decryptUserId(user_email),field2);
           const responseU = await FirestoreClient.getData('Users',DataManipulator.decryptUserId(user_email));
          delete responseU.pass;
          delete responseU.date;
             const JSON_response = {
-                message:""+field_to_update+" field updated as "+value_to_update,
+                message:"Update is successful",
                 data:responseU,
                 state:"Successful",
                 status:true
